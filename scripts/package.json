@@ -1,0 +1,12 @@
+{
+  "name": "mabasch-scripts",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Hilfsskripte für das MaBaSch-Projekt (z. B. Doku-Screenshots).",
+  "scripts": {
+    "screenshots": "node generate-screenshots.mjs"
+  },
+  "devDependencies": {
+    "playwright": "^1.63.0"
+  }
+}

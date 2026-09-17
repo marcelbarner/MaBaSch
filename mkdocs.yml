@@ -1,0 +1,60 @@
+site_name: MaBaSch
+site_description: Einfache Inventarlisten-Anwendung mit Angular 22 und ASP.NET Core 10
+repo_url: https://github.com/marcelbarner/MaBaSch
+repo_name: marcelbarner/MaBaSch
+edit_uri: edit/main/docs/
+
+docs_dir: docs
+
+theme:
+  name: material
+  language: de
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/weather-night
+        name: Dunkles Farbschema aktivieren
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/weather-sunny
+        name: Helles Farbschema aktivieren
+  icon:
+    logo: material/archive-outline
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - content.code.copy
+    - content.action.edit
+    - toc.integrate
+    - search.suggest
+
+nav:
+  - Start: index.md
+  - Benutzerhandbuch:
+      - Erste Schritte: user-guide/getting-started.md
+      - Funktionen: user-guide/features.md
+  - Contributing:
+      - Entwicklungs-Setup: contributing/development-setup.md
+      - Architektur: contributing/architecture.md
+      - Docker: contributing/docker.md
+
+markdown_extensions:
+  - attr_list
+  - md_in_html
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - tables
+  - toc:
+      permalink: true

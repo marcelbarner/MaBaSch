@@ -14,3 +14,14 @@ backend/**/*.db-wal
 # OS
 .DS_Store
 Thumbs.db
+
+# Claude Code local settings (may contain secrets/tokens)
+.claude/settings.local.json
+
+# MkDocs
+site/
+__pycache__/
+*.pyc
+
+# Scripts (Playwright)
+scripts/node_modules/

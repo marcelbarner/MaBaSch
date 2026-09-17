@@ -1,0 +1,12 @@
+services:
+  mabasch:
+    build: .
+    container_name: mabasch
+    ports:
+      - "8080:8080"
+    volumes:
+      - mabasch-data:/app/data
+    restart: unless-stopped
+
+volumes:
+  mabasch-data:
