@@ -19,7 +19,7 @@ Das Backend ist eine ASP.NET Core Minimal API ohne Controller-Boilerplate.
 ```
 MaBaSch/
 ├── Program.cs              Composition Root: DI, Middleware, Endpoint-Mapping
-├── Models/                 EF-Core-Entities (InventoryItem)
+├── Models/                 EF-Core-Entities (InventoryItem, InventoryItemVariant)
 ├── Dtos/                   Request-/Response-DTOs inkl. DataAnnotations-Validierung
 ├── Data/                   DbContext + Seed-Daten
 ├── Services/               Business-Logik (Suche, Filter, Sortierung), von Endpoints entkoppelt
@@ -35,6 +35,12 @@ Wichtige Designentscheidungen:
   explizit aus, da Minimal APIs das nicht automatisch tun.
 - **SPA-Hosting**: Im Produktions-Build liefert das Backend das kompilierte Angular-Bundle aus
   `wwwroot/` aus (`UseStaticFiles` + `MapFallbackToFile`), sodass ein einzelner Prozess reicht.
+- **Artikel-Varianten**: Ein `InventoryItem` kann entweder direkte Bestandsfelder
+  (`Quantity`/`MinQuantity`/`Unit`/`Price`/`Location`, alle nullable) tragen **oder** eine
+  Liste von `InventoryItemVariant`-Zeilen (1:n, Cascade-Delete) mit eigenem Bestand je
+  Größe/Hersteller. Aggregation (Gesamtmenge, Preisspanne, kombinierter Low-Stock-Status)
+  passiert ausschließlich beim DTO-Mapping in `InventoryService.ToDto`, nicht im Entity
+  selbst.
 
 ## Frontend (`frontend/mabasch`)
 

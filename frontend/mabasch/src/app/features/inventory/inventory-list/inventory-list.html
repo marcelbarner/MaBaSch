@@ -20,7 +20,7 @@
     <mat-icon matPrefix>search</mat-icon>
     <input
       matInput
-      placeholder="Name, Kategorie oder Lagerort"
+      placeholder="Name, Kategorie, Größe, Hersteller oder Lagerort"
       (input)="onSearchInput($any($event.target).value)"
     />
   </mat-form-field>
@@ -53,20 +53,35 @@
       <p>Keine Artikel gefunden.</p>
     </div>
   } @else {
-    <table mat-table [dataSource]="items()" matSort (matSortChange)="onSortChange($event)">
+    <table mat-table [dataSource]="items()" matSort (matSortChange)="onSortChange($event)" multiTemplateDataRows>
+      <ng-container matColumnDef="expand">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let item">
+          @if (item.hasVariants) {
+            <button
+              mat-icon-button
+              class="expand-button"
+              [class.expand-button--open]="isExpanded(item)"
+              [attr.aria-label]="isExpanded(item) ? 'Varianten einklappen' : 'Varianten anzeigen'"
+              (click)="toggleExpanded(item)"
+            >
+              <mat-icon>chevron_right</mat-icon>
+            </button>
+          }
+        </td>
+      </ng-container>
+
       <ng-container matColumnDef="name">
         <th mat-header-cell *matHeaderCellDef mat-sort-header>Name</th>
         <td mat-cell *matCellDef="let item">
           <div class="item-name">
             @if (item.isLowStock) {
-              <mat-icon
-                class="low-stock-icon"
-                matTooltip="Niedriger Bestand: {{ item.quantity }} / {{ item.minQuantity }} {{ item.unit }}"
-              >
-                warning
-              </mat-icon>
+              <mat-icon class="low-stock-icon" matTooltip="Niedriger Bestand">warning</mat-icon>
             }
             {{ item.name }}
+            @if (item.hasVariants) {
+              <span class="variant-count-badge">{{ item.variants.length }} Varianten</span>
+            }
           </div>
         </td>
       </ng-container>
@@ -83,23 +98,23 @@
       <ng-container matColumnDef="quantity">
         <th mat-header-cell *matHeaderCellDef mat-sort-header>Menge</th>
         <td mat-cell *matCellDef="let item" [class.low-stock-text]="item.isLowStock">
-          {{ item.quantity }}
+          {{ item.totalQuantity }}
         </td>
       </ng-container>
 
       <ng-container matColumnDef="unit">
         <th mat-header-cell *matHeaderCellDef>Einheit</th>
-        <td mat-cell *matCellDef="let item">{{ item.unit }}</td>
+        <td mat-cell *matCellDef="let item">{{ unitDisplay(item) }}</td>
       </ng-container>
 
       <ng-container matColumnDef="price">
         <th mat-header-cell *matHeaderCellDef mat-sort-header>Preis</th>
-        <td mat-cell *matCellDef="let item">{{ item.price | currency: 'EUR' }}</td>
+        <td mat-cell *matCellDef="let item">{{ priceDisplay(item) }}</td>
       </ng-container>
 
       <ng-container matColumnDef="location">
         <th mat-header-cell *matHeaderCellDef>Lagerort</th>
-        <td mat-cell *matCellDef="let item">{{ item.location || '—' }}</td>
+        <td mat-cell *matCellDef="let item">{{ locationDisplay(item) }}</td>
       </ng-container>
 
       <ng-container matColumnDef="actions">
@@ -124,8 +139,58 @@
         </td>
       </ng-container>
 
+      <ng-container matColumnDef="variantDetails">
+        <td mat-cell *matCellDef="let item" [attr.colspan]="displayedColumns.length" class="variant-details-cell">
+          <div class="variant-details" [class.variant-details--open]="isExpanded(item)">
+            @if (isExpanded(item) && item.hasVariants) {
+              <table class="variant-table">
+                <thead>
+                  <tr>
+                    <th>Größe</th>
+                    <th>Hersteller</th>
+                    <th>Einheit</th>
+                    <th>Menge</th>
+                    <th>Mindestbestand</th>
+                    <th>Preis</th>
+                    <th>Lagerort</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (variant of item.variants; track variant.id) {
+                    <tr [class.low-stock-row]="variant.isLowStock">
+                      <td>
+                        @if (variant.isLowStock) {
+                          <mat-icon class="low-stock-icon" matTooltip="Niedriger Bestand">warning</mat-icon>
+                        }
+                        {{ variant.size || '—' }}
+                      </td>
+                      <td>{{ variant.manufacturer || '—' }}</td>
+                      <td>{{ variant.unit || '—' }}</td>
+                      <td [class.low-stock-text]="variant.isLowStock">{{ variant.quantity }}</td>
+                      <td>{{ variant.minQuantity }}</td>
+                      <td>{{ variant.price | currency: 'EUR' }}</td>
+                      <td>{{ variant.location || '—' }}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            }
+          </div>
+        </td>
+      </ng-container>
+
       <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-      <tr mat-row *matRowDef="let row; columns: displayedColumns" [class.low-stock-row]="row.isLowStock"></tr>
+      <tr
+        mat-row
+        *matRowDef="let row; columns: displayedColumns"
+        [class.low-stock-row]="row.isLowStock"
+        [class.expandable-row]="row.hasVariants"
+      ></tr>
+      <tr
+        mat-row
+        *matRowDef="let row; columns: ['variantDetails']; when: hasVariantsRow"
+        class="variant-details-row"
+      ></tr>
     </table>
   }
 </div>

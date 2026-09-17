@@ -10,9 +10,10 @@ rot hervorgehoben und mit einem Warnsymbol markiert.
 
 ## Suche
 
-Über das Suchfeld lässt sich nach Name, Kategorie oder Lagerort filtern. Die Suche reagiert
-mit einer kurzen Verzögerung (Debounce), sodass nicht bei jedem Tastendruck ein Request
-ausgelöst wird.
+Über das Suchfeld lässt sich nach Name, Kategorie oder Lagerort filtern — bei Artikeln mit
+Varianten auch nach Größe, Hersteller oder Lagerort der einzelnen Variante. Die Suche
+reagiert mit einer kurzen Verzögerung (Debounce), sodass nicht bei jedem Tastendruck ein
+Request ausgelöst wird.
 
 ![Suche](../assets/screenshots/02-search.png)
 
@@ -48,11 +49,35 @@ wird.
 
 ![Löschen bestätigen](../assets/screenshots/06-delete-confirm.png)
 
+## Artikel-Varianten (Größe, Hersteller)
+
+Artikel, die es in mehreren Größen oder von mehreren Herstellern gibt (z. B. Arbeitshandschuhe
+in S/M/L/XL oder ein T-Shirt von zwei Herstellern), lassen sich als **ein Artikel mit mehreren
+Varianten** anlegen. Jede Variante hat eine eigene Menge, einen eigenen Mindestbestand, Preis,
+Lagerort und optional eine eigene Einheit.
+
+In der Liste erscheint ein Varianten-Artikel als eine Zeile mit aggregierten Werten
+(Gesamtmenge, Preisspanne). Ein Klick auf den Pfeil links klappt die Detailaufteilung nach
+Größe/Hersteller auf.
+
+![Varianten aufgeklappt](../assets/screenshots/08-variants-expanded.png)
+
+Beim Anlegen oder Bearbeiten eines Artikels aktiviert der Schalter **„Varianten verwenden"**
+den Varianten-Modus: Statt der direkten Bestandsfelder erscheint eine Liste von
+Varianten-Zeilen (Größe, Hersteller und Einheit optional, Menge/Mindestbestand/Preis
+Pflichtfelder), die sich per **„Variante hinzufügen"** erweitern lässt.
+
+![Varianten-Formular](../assets/screenshots/09-variants-form.png)
+
+Ein Artikel kann jederzeit zwischen „einfach" (direkte Felder) und „mit Varianten"
+umgeschaltet werden — die Bestandswarnung wird dann pro Variante geprüft und der Artikel
+als Ganzes gilt als „niedriger Bestand", sobald mindestens eine Variante betroffen ist.
+
 ## Bestandswarnung
 
-Sobald die Menge eines Artikels seinen Mindestbestand erreicht oder unterschreitet, wird die
-Zeile rot eingefärbt und mit einem Warnsymbol versehen — sowohl in der Liste als auch beim
-Bearbeiten sichtbar.
+Sobald die Menge eines Artikels (bzw. einer Variante) seinen Mindestbestand erreicht oder
+unterschreitet, wird die Zeile rot eingefärbt und mit einem Warnsymbol versehen — sowohl in
+der Liste als auch beim Bearbeiten sichtbar.
 
 ## Responsives Design
 

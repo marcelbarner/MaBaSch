@@ -50,6 +50,7 @@ export class InventoryList {
   private readonly searchInput$ = new Subject<string>();
 
   protected readonly displayedColumns = [
+    'expand',
     'name',
     'category',
     'quantity',
@@ -68,6 +69,7 @@ export class InventoryList {
   protected readonly selectedCategory = signal('');
   protected readonly sortBy = signal<SortField>('name');
   protected readonly sortDescending = signal(false);
+  protected readonly expandedItemId = signal<string | null>(null);
 
   protected readonly lowStockCount = computed(() => this.items().filter((i) => i.isLowStock).length);
 
@@ -85,6 +87,43 @@ export class InventoryList {
 
   onSearchInput(value: string): void {
     this.searchInput$.next(value);
+  }
+
+  toggleExpanded(item: InventoryItem): void {
+    this.expandedItemId.update((current) => (current === item.id ? null : item.id));
+  }
+
+  isExpanded(item: InventoryItem): boolean {
+    return this.expandedItemId() === item.id;
+  }
+
+  protected readonly hasVariantsRow = (_index: number, item: InventoryItem): boolean => item.hasVariants;
+
+  unitDisplay(item: InventoryItem): string {
+    if (!item.hasVariants) {
+      return item.unit ?? '—';
+    }
+    const units = new Set(item.variants.map((v) => v.unit ?? '—'));
+    return units.size === 1 ? [...units][0] : 'Mehrere';
+  }
+
+  priceDisplay(item: InventoryItem): string {
+    if (item.minPrice === item.maxPrice) {
+      return this.formatCurrency(item.minPrice);
+    }
+    return `${this.formatCurrency(item.minPrice)} – ${this.formatCurrency(item.maxPrice)}`;
+  }
+
+  locationDisplay(item: InventoryItem): string {
+    if (!item.hasVariants) {
+      return item.location ?? '—';
+    }
+    const locations = new Set(item.variants.map((v) => v.location ?? '—'));
+    return locations.size === 1 ? [...locations][0] : 'Mehrere';
+  }
+
+  private formatCurrency(value: number): string {
+    return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(value);
   }
 
   onCategoryChange(value: string): void {

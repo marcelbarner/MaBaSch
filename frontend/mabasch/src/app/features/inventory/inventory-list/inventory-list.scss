@@ -73,6 +73,81 @@ table {
   background-color: color-mix(in srgb, var(--mat-sys-error) 6%, transparent);
 }
 
+.expandable-row {
+  cursor: default;
+}
+
+.expand-button {
+  mat-icon {
+    transition: transform 0.15s ease;
+  }
+
+  &--open mat-icon {
+    transform: rotate(90deg);
+  }
+}
+
+.variant-count-badge {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--mat-sys-on-surface-variant);
+  background: var(--mat-sys-surface-container-high);
+  border-radius: 999px;
+  padding: 2px 8px;
+  margin-left: 4px;
+}
+
+.variant-details-row {
+  height: 0;
+}
+
+.variant-details-cell {
+  padding: 0 !important;
+  border-bottom: none;
+}
+
+.variant-details {
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height 0.2s ease;
+
+  &--open {
+    max-height: 400px;
+    padding: 8px 16px 16px 56px;
+  }
+}
+
+.variant-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--mat-sys-surface-container-lowest);
+  border-radius: 8px;
+  overflow: hidden;
+
+  th {
+    text-align: left;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--mat-sys-on-surface-variant);
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--mat-sys-outline-variant);
+  }
+
+  td {
+    padding: 8px 12px;
+    font-size: 0.875rem;
+    border-bottom: 1px solid var(--mat-sys-outline-variant);
+  }
+
+  tr:last-child td {
+    border-bottom: none;
+  }
+
+  tr.low-stock-row {
+    background-color: color-mix(in srgb, var(--mat-sys-error) 8%, transparent);
+  }
+}
+
 .actions-header,
 .actions-cell {
   text-align: right;

@@ -8,9 +8,10 @@ Angular Material und ein schlankes ASP.NET Core Backend mit SQLite.
 ## Was kann MaBaSch?
 
 - Artikel anlegen, bearbeiten und löschen
-- Volltextsuche über Name, Kategorie und Lagerort
+- Artikel mit **Varianten** (z. B. Größe, Hersteller) führen, inklusive eigenem Bestand je Variante
+- Volltextsuche über Name, Kategorie, Lagerort sowie Größe/Hersteller der Varianten
 - Filtern nach Kategorie und Sortieren nach Name, Kategorie, Menge oder Preis
-- Automatische Warnung, sobald der Bestand eines Artikels den Mindestbestand unterschreitet
+- Automatische Warnung, sobald der Bestand eines Artikels (oder einer Variante) den Mindestbestand unterschreitet
 
 ## Wie geht's weiter?
 

@@ -32,11 +32,12 @@ async function main() {
   console.log('01-inventory-list.png gespeichert.');
 
   // 2) Suche
-  await page.fill('input[placeholder="Name, Kategorie oder Lagerort"]', 'Monitor');
+  const searchInput = 'input[placeholder="Name, Kategorie, Größe, Hersteller oder Lagerort"]';
+  await page.fill(searchInput, 'Monitor');
   await page.waitForTimeout(500);
   await page.screenshot({ path: path.join(OUTPUT_DIR, '02-search.png'), fullPage: true });
   console.log('02-search.png gespeichert.');
-  await page.fill('input[placeholder="Name, Kategorie oder Lagerort"]', '');
+  await page.fill(searchInput, '');
   await page.waitForTimeout(500);
 
   // 3) Kategorie-Filter geöffnet
@@ -88,6 +89,39 @@ async function main() {
   await page.waitForTimeout(500);
   await page.screenshot({ path: path.join(OUTPUT_DIR, '07-mobile-view.png'), fullPage: true });
   console.log('07-mobile-view.png gespeichert.');
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await page.waitForTimeout(300);
+
+  // 8) Artikel mit Varianten aufgeklappt
+  const variantRow = page.locator('tr', { hasText: 'Arbeitshandschuhe' });
+  await variantRow.locator('.expand-button').click();
+  await page.waitForTimeout(400);
+  await page.screenshot({ path: path.join(OUTPUT_DIR, '08-variants-expanded.png'), fullPage: true });
+  console.log('08-variants-expanded.png gespeichert.');
+  await variantRow.locator('.expand-button').click();
+  await page.waitForTimeout(300);
+
+  // 9) Varianten-Formular (Neuer Artikel mit Varianten-Toggle)
+  await page.click('button:has-text("Neuer Artikel")');
+  await page.waitForSelector('mat-dialog-container', { timeout: 5000 });
+  await page.waitForTimeout(300);
+  await page.fill('input[formcontrolname="name"]', 'Sicherheitshelm');
+  await page.fill('input[formcontrolname="category"]', 'Sicherheit');
+  await page.click('mat-slide-toggle');
+  await page.waitForTimeout(300);
+  const variantRowForm = page.locator('.variant-row').first();
+  await variantRowForm.locator('input[formcontrolname="size"]').fill('M');
+  await variantRowForm.locator('input[formcontrolname="manufacturer"]').fill('SafeHead');
+  await variantRowForm.locator('input[formcontrolname="unit"]').fill('Stück');
+  await variantRowForm.locator('input[formcontrolname="quantity"]').fill('12');
+  await variantRowForm.locator('input[formcontrolname="minQuantity"]').fill('5');
+  await variantRowForm.locator('input[formcontrolname="price"]').fill('19.90');
+  await page.locator('button:has-text("Variante hinzufügen")').focus();
+  await page.waitForTimeout(400);
+  await page.screenshot({ path: path.join(OUTPUT_DIR, '09-variants-form.png'), fullPage: true });
+  console.log('09-variants-form.png gespeichert.');
+  await page.click('button:has-text("Abbrechen")');
+  await page.waitForTimeout(500);
 
   await browser.close();
   console.log(`Fertig. Screenshots liegen in ${OUTPUT_DIR}`);

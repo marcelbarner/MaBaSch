@@ -10,17 +10,50 @@ public record InventoryItemCreateUpdateDto(
     string Category,
 
     [property: Range(0, int.MaxValue)]
-    int Quantity,
+    int? Quantity,
 
     [property: Range(0, int.MaxValue)]
-    int MinQuantity,
+    int? MinQuantity,
 
-    [property: Required, StringLength(50, MinimumLength = 1)]
-    string Unit,
+    [property: StringLength(50)]
+    string? Unit,
 
     [property: Range(0, double.MaxValue)]
-    decimal Price,
+    decimal? Price,
 
     [property: StringLength(200)]
-    string? Location
-);
+    string? Location,
+
+    List<InventoryItemVariantInputDto>? Variants
+) : IValidatableObject
+{
+    public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+    {
+        var hasVariants = Variants is { Count: > 0 };
+
+        if (hasVariants)
+        {
+            yield break;
+        }
+
+        if (Quantity is null)
+        {
+            yield return new ValidationResult("Menge ist erforderlich, wenn keine Varianten angegeben sind.", [nameof(Quantity)]);
+        }
+
+        if (MinQuantity is null)
+        {
+            yield return new ValidationResult("Mindestbestand ist erforderlich, wenn keine Varianten angegeben sind.", [nameof(MinQuantity)]);
+        }
+
+        if (string.IsNullOrWhiteSpace(Unit))
+        {
+            yield return new ValidationResult("Einheit ist erforderlich, wenn keine Varianten angegeben sind.", [nameof(Unit)]);
+        }
+
+        if (Price is null)
+        {
+            yield return new ValidationResult("Preis ist erforderlich, wenn keine Varianten angegeben sind.", [nameof(Price)]);
+        }
+    }
+}

@@ -15,3 +15,42 @@
     }
   }
 }
+
+.variants-toggle {
+  display: block;
+  margin: 8px 0 16px;
+}
+
+.variants-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 50vh;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.variant-row {
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: 8px;
+  padding: 12px;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 4px;
+  }
+
+  &__title {
+    font-weight: 500;
+    color: var(--mat-sys-on-surface-variant);
+  }
+}
+
+.add-variant-button {
+  margin-top: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
