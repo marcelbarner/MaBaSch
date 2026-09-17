@@ -5,7 +5,8 @@
 ```
 repo/
 ├── backend/MaBaSch/       ASP.NET Core 10 Minimal API
-├── frontend/mabasch/      Angular 22 Anwendung
+├── backend/MaBaSch.Tests/ TUnit-Testprojekt (ProjectReference auf MaBaSch)
+├── frontend/mabasch/      Angular 22 Anwendung (Vitest-Tests colocated)
 ├── docs/                  Diese Dokumentation (MkDocs Material)
 ├── scripts/                Hilfsskripte (u. a. Screenshot-Generierung)
 ├── Dockerfile              Multi-Stage-Build für Frontend + Backend
@@ -66,6 +67,20 @@ Wichtige Designentscheidungen:
 - **Signals statt RxJS-State-Management**: einfacher lokaler State über `signal`/`computed`.
 - **Angular Material (M3-Theme)**: konsistentes, modernes Design ohne eigenes Design-System.
 - **Lazy-Loading**: die Inventory-Feature-Komponente wird über `loadComponent` nachgeladen.
+
+## Tests
+
+- **Backend**: `backend/MaBaSch.Tests` (TUnit). Tests laufen gegen eine echte
+  `InventoryDbContext`-Instanz mit In-Memory-SQLite (offene `SqliteConnection` mit
+  `Data Source=:memory:`), aufgerufen über `InventoryService` — nicht gegen Entities
+  direkt. TUnit-Projekte sind ausführbare Microsoft.Testing.Platform-Programme; ausführen
+  mit `dotnet run`, nicht `dotnet test` (siehe [Entwicklungs-Setup](development-setup.md)).
+- **Frontend**: Vitest (`@angular/build:unit-test`), Spec-Dateien liegen neben der
+  jeweiligen Komponente (`*.spec.ts`).
+- **End-to-End**: kein dauerhaftes E2E-Test-Suite im Repo; End-to-End-Verifikation läuft
+  bei Bedarf über Playwright gegen eine isolierte Docker-Instanz (siehe
+  [Docker](docker.md) und `scripts/generate-screenshots.mjs` als Referenzimplementierung
+  für das Ansteuern der laufenden App per Playwright).
 
 ## Kommunikation Frontend ↔ Backend
 

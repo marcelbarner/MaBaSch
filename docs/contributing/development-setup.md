@@ -40,11 +40,13 @@ Dev-Proxy (`proxy.conf.json`) an das Backend weiter.
 ## Tests ausführen
 
 ```bash
-# Backend
-cd backend/MaBaSch
-dotnet test  # sofern Testprojekte vorhanden sind
+# Backend (TUnit) — bewusst `dotnet run`, nicht `dotnet test`:
+# TUnit-Projekte sind ausführbare Microsoft.Testing.Platform-Programme; `dotnet test`
+# erfordert unter .NET 10 ein separates Opt-in, das hier nicht eingerichtet ist.
+cd backend/MaBaSch.Tests
+dotnet run
 
-# Frontend
+# Frontend (Vitest)
 cd frontend/mabasch
 npm test
 ```
