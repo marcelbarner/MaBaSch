@@ -1,0 +1,22 @@
+.app-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  gap: 12px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+
+  &__title {
+    font-size: 1.125rem;
+    font-weight: 500;
+  }
+}
+
+.app-main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px 16px 48px;
+
+  @media (min-width: 600px) {
+    padding: 32px 24px 64px;
+  }
+}

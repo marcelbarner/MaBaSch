@@ -1,0 +1,8 @@
+<h2 mat-dialog-title>Artikel löschen</h2>
+<mat-dialog-content>
+  Möchten Sie den Artikel <strong>{{ data.itemName }}</strong> wirklich unwiderruflich löschen?
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button (click)="cancel()">Abbrechen</button>
+  <button mat-flat-button color="warn" (click)="confirm()">Löschen</button>
+</mat-dialog-actions>
