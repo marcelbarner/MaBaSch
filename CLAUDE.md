@@ -122,6 +122,32 @@ Der Push und das Erstellen des Pull Requests sind für diesen Workflow **vorab a
 menschliche Entscheidung. Direkte Pushes auf `main` oder Force-Pushes bleiben ausdrücklich
 ausgeschlossen und erfordern weiterhin Rückfrage.
 
+### 6. PR-Validierung
+
+Jeder Pull Request gegen `main` durchläuft automatisch `.github/workflows/pr-validation.yml`
+mit fünf verpflichtenden Checks:
+
+| Job | Prüft |
+| --- | ----- |
+| `Backend / Format` | `dotnet format --verify-no-changes` in `backend/MaBaSch` |
+| `Backend / Build, Test & Coverage` | Release-Build, TUnit-Suite, **≥ 80 % Line Coverage** |
+| `Frontend / Format & Lint` | `prettier --check`, `ng lint` (angular-eslint) |
+| `Frontend / Build, Test & Coverage` | `ng build`, Vitest-Suite, **≥ 80 % Line Coverage** |
+| `Docker / Build` | Multi-Stage-`Dockerfile` baut erfolgreich (kein Start) |
+
+Ein PR gilt erst als mergefähig, wenn alle fünf Checks grün sind. Der QA-Reviewer sollte
+die relevanten Checks bereits lokal ausführen, bevor gepusht wird (siehe
+`mabasch-qa-reviewer.md` und „Häufige Befehle" unten), damit ein PR nicht unnötig rot
+startet.
+
+Coverage-Konfiguration:
+- **Backend**: `backend/MaBaSch.Tests/coverage.runsettings` schließt generierten Code
+  (EF-Core-Migrationen, Source-Generator-Output) von der Messung aus — gemessen wird nur
+  handgeschriebener Anwendungscode.
+- **Frontend**: `angular.json` (`architect.test.options.coverageInclude/-Exclude`) bezieht
+  alle `src/app/**/*.ts` ein außer Spec-, Routing-, Model- und Config-Dateien, damit
+  ungetesteter Code sichtbar bleibt statt stillschweigend aus der Messung zu fallen.
+
 ## Häufige Befehle
 
 ```bash
@@ -129,10 +155,21 @@ ausgeschlossen und erfordern weiterhin Rückfrage.
 cd backend/MaBaSch && dotnet build
 cd backend/MaBaSch.Tests && dotnet run          # Tests (nicht `dotnet test`)
 cd backend/MaBaSch && dotnet ef migrations add <Name>
+cd backend/MaBaSch && dotnet format --verify-no-changes   # Format-Check wie in CI
+
+# Backend Coverage (wie in CI)
+cd backend/MaBaSch.Tests
+dotnet run -c Release -- --coverage --coverage-settings coverage.runsettings \
+  --coverage-output-format cobertura --coverage-output coverage.cobertura.xml
 
 # Frontend
 cd frontend/mabasch && npx ng build
 cd frontend/mabasch && npm test                  # Vitest
+cd frontend/mabasch && npx ng lint                # ESLint wie in CI
+cd frontend/mabasch && npx prettier --check "src/**/*.{ts,html,scss}"
+
+# Frontend Coverage (wie in CI)
+cd frontend/mabasch && npx ng test --coverage
 
 # Doku
 python -m mkdocs build --strict

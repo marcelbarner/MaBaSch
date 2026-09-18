@@ -34,6 +34,32 @@ cd backend/MaBaSch && dotnet build
 cd frontend/mabasch && npx ng build
 ```
 
+## Step 1b — Mirror the CI gate locally
+
+`.github/workflows/pr-validation.yml` runs five required checks on every PR against
+`main`: backend format, backend build+test+coverage (≥80%), frontend format+lint, frontend
+build+test+coverage (≥80%), and a Docker build. Run the same checks locally before
+declaring the issue done, so the PR doesn't come back red for something avoidable:
+
+```bash
+# Format/lint
+cd backend/MaBaSch && dotnet format --verify-no-changes
+cd frontend/mabasch && npx prettier --check "src/**/*.{ts,html,scss}" && npx ng lint
+
+# Coverage gates (80% line coverage each)
+cd backend/MaBaSch.Tests && dotnet run -c Release -- \
+  --coverage --coverage-settings coverage.runsettings \
+  --coverage-output-format cobertura --coverage-output coverage.cobertura.xml
+cd frontend/mabasch && npx ng test --coverage
+
+# Docker build sanity (build only, don't leave it running — see Step 2 for the real
+# throwaway instance used for E2E)
+docker build -t mabasch:ci-check . && docker rmi mabasch:ci-check
+```
+
+If coverage is short, add tests for the new/changed code rather than lowering the bar —
+the 80% threshold applies to both backend and frontend.
+
 ## Step 2 — End-to-end verification in an isolated Docker instance
 
 **Never touch the `mabasch-uat` container/volume during development or review.** Always
