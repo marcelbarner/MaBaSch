@@ -7,7 +7,11 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { InventoryItem, InventoryItemInput, InventoryItemVariantInput } from '../../../core/models/inventory-item.model';
+import {
+  InventoryItem,
+  InventoryItemInput,
+  InventoryItemVariantInput,
+} from '../../../core/models/inventory-item.model';
 
 export interface InventoryFormDialogData {
   item: InventoryItem | null;
@@ -74,7 +78,11 @@ export class InventoryForm {
 
     if (useVariants) {
       this.variants.updateValueAndValidity();
-      if (this.variants.invalid || !this.form.controls.name.valid || !this.form.controls.category.valid) {
+      if (
+        this.variants.invalid ||
+        !this.form.controls.name.valid ||
+        !this.form.controls.category.valid
+      ) {
         this.form.controls.name.markAsTouched();
         this.form.controls.category.markAsTouched();
         this.variants.markAllAsTouched();
@@ -95,17 +103,15 @@ export class InventoryForm {
       price: useVariants ? null : raw.price,
       location: useVariants ? null : raw.location.trim() || null,
       variants: useVariants
-        ? raw.variants.map(
-            (v): InventoryItemVariantInput => ({
-              size: v.size.trim() || null,
-              manufacturer: v.manufacturer.trim() || null,
-              unit: v.unit.trim() || null,
-              quantity: v.quantity,
-              minQuantity: v.minQuantity,
-              price: v.price,
-              location: v.location.trim() || null,
-            }),
-          )
+        ? raw.variants.map((v): InventoryItemVariantInput => ({
+            size: v.size.trim() || null,
+            manufacturer: v.manufacturer.trim() || null,
+            unit: v.unit.trim() || null,
+            quantity: v.quantity,
+            minQuantity: v.minQuantity,
+            price: v.price,
+            location: v.location.trim() || null,
+          }))
         : null,
     };
 

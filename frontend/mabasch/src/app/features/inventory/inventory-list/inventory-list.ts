@@ -71,7 +71,9 @@ export class InventoryList {
   protected readonly sortDescending = signal(false);
   protected readonly expandedItemId = signal<string | null>(null);
 
-  protected readonly lowStockCount = computed(() => this.items().filter((i) => i.isLowStock).length);
+  protected readonly lowStockCount = computed(
+    () => this.items().filter((i) => i.isLowStock).length,
+  );
 
   constructor() {
     this.searchInput$
@@ -97,7 +99,8 @@ export class InventoryList {
     return this.expandedItemId() === item.id;
   }
 
-  protected readonly hasVariantsRow = (_index: number, item: InventoryItem): boolean => item.hasVariants;
+  protected readonly hasVariantsRow = (_index: number, item: InventoryItem): boolean =>
+    item.hasVariants;
 
   unitDisplay(item: InventoryItem): string {
     if (!item.hasVariants) {
@@ -239,6 +242,8 @@ export class InventoryList {
   }
 
   private showSaveError(): void {
-    this.snackBar.open('Speichern fehlgeschlagen. Bitte Eingaben prüfen.', 'OK', { duration: 4000 });
+    this.snackBar.open('Speichern fehlgeschlagen. Bitte Eingaben prüfen.', 'OK', {
+      duration: 4000,
+    });
   }
 }

@@ -1,0 +1,135 @@
+name: PR Validation
+
+on:
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: pr-validation-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+env:
+  DOTNET_VERSION: "10.0.x"
+  NODE_VERSION: "22"
+  COVERAGE_THRESHOLD: 80
+
+jobs:
+  backend-format:
+    name: Backend / Format
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: dotnet format --verify-no-changes
+        working-directory: backend/MaBaSch
+        run: dotnet format --verify-no-changes --verbosity diagnostic
+
+  backend-build-test:
+    name: Backend / Build, Test & Coverage
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Build
+        working-directory: backend/MaBaSch
+        run: dotnet build -c Release
+
+      - name: Run tests with coverage
+        working-directory: backend/MaBaSch.Tests
+        # TUnit projects are Microsoft.Testing.Platform executables — `dotnet test`
+        # requires a separate opt-in on .NET 10 that this repo doesn't configure, so
+        # tests are run via `dotnet run` (see CLAUDE.md).
+        run: >
+          dotnet run -c Release --
+          --coverage --coverage-settings coverage.runsettings
+          --coverage-output-format cobertura --coverage-output coverage.cobertura.xml
+
+      - name: Enforce coverage threshold
+        working-directory: backend/MaBaSch.Tests
+        run: |
+          COVERAGE_FILE="bin/Release/net10.0/TestResults/coverage.cobertura.xml"
+          LINE_RATE=$(grep -o 'line-rate="[0-9.]*"' "$COVERAGE_FILE" | head -1 | grep -o '[0-9.]*')
+          COVERAGE_PCT=$(awk -v rate="$LINE_RATE" 'BEGIN { printf "%.1f", rate * 100 }')
+          echo "Backend line coverage: ${COVERAGE_PCT}% (threshold: ${COVERAGE_THRESHOLD}%)"
+          echo "### Backend coverage: ${COVERAGE_PCT}%" >> "$GITHUB_STEP_SUMMARY"
+          awk -v cov="$COVERAGE_PCT" -v threshold="$COVERAGE_THRESHOLD" 'BEGIN { exit !(cov + 0 >= threshold + 0) }' \
+            || { echo "::error::Backend coverage ${COVERAGE_PCT}% is below the ${COVERAGE_THRESHOLD}% threshold"; exit 1; }
+
+  frontend-format-lint:
+    name: Frontend / Format & Lint
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend/mabasch
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: frontend/mabasch/package-lock.json
+
+      - run: npm ci
+
+      - name: Prettier
+        run: npx prettier --check "src/**/*.{ts,html,scss}"
+
+      - name: ESLint
+        run: npx ng lint
+
+  frontend-build-test:
+    name: Frontend / Build, Test & Coverage
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend/mabasch
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: frontend/mabasch/package-lock.json
+
+      - run: npm ci
+
+      - name: Build
+        run: npx ng build
+
+      - name: Test with coverage
+        run: npx ng test --coverage --coverage-reporters=json-summary --coverage-reporters=text
+
+      - name: Enforce coverage threshold
+        run: |
+          COVERAGE_PCT=$(node -p "require('./coverage/mabasch/coverage-summary.json').total.lines.pct")
+          echo "Frontend line coverage: ${COVERAGE_PCT}% (threshold: ${COVERAGE_THRESHOLD}%)"
+          echo "### Frontend coverage: ${COVERAGE_PCT}%" >> "$GITHUB_STEP_SUMMARY"
+          awk -v cov="$COVERAGE_PCT" -v threshold="$COVERAGE_THRESHOLD" 'BEGIN { exit !(cov + 0 >= threshold + 0) }' \
+            || { echo "::error::Frontend coverage ${COVERAGE_PCT}% is below the ${COVERAGE_THRESHOLD}% threshold"; exit 1; }
+
+  docker-build:
+    name: Docker / Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Build image (no push)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: false
+          tags: mabasch:pr-check
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
